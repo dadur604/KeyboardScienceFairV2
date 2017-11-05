@@ -60,16 +60,19 @@ namespace KeyboardDesktopApp_v2._0 {
             Application.SetCompatibleTextRenderingDefault(false);
             //Start();
             DisplayMaker displayMaker = new DisplayMaker();
-            Image aImage = new Bitmap(AppDomain.CurrentDomain.BaseDirectory + "aimage.png");
-            Image eImage = new Bitmap(AppDomain.CurrentDomain.BaseDirectory + "eimage.jpg");
-            List<List<string>> letterA = displayMaker.MakeCImage(aImage, new Resolution(36, 24));
-            List<List<string>> letterE = displayMaker.MakeCImage(eImage, new Resolution(36, 24));
+            Image imageA = new Bitmap(AppDomain.CurrentDomain.BaseDirectory + "imagea.jpg");
+            Image imageB = new Bitmap(AppDomain.CurrentDomain.BaseDirectory + "imageb.jpg");
+            List<List<string>> imageA_C = displayMaker.MakeCImageFromImage(imageA, new Resolution(36, 24));
+            List<List<string>> imageB_C = displayMaker.MakeCImageFromImage(imageB, new Resolution(36, 24));
 
-            List<List<string>> both = displayMaker.CombineCImages(letterA, letterE);
+            List<List<string>> imageAB_C = displayMaker.CombineCImages(imageA_C, imageB_C);
 
-            List<String> displayC = displayMaker.MakeCDisplay(both);
+            List<String> displayAB_C = displayMaker.MakeCDisplayFromCImage(imageAB_C);
 
-            File.WriteAllLines(AppDomain.CurrentDomain.BaseDirectory + "output.txt", displayC);
+            var arduinoCodeMaker = new ArduinoCodeMaker();
+            List<String> displayAB_A = arduinoCodeMaker.MakeArduinoCodeFromCDisplay(displayAB_C);
+
+            File.WriteAllLines(AppDomain.CurrentDomain.BaseDirectory + "output/output.ino", displayAB_A);
 
             _Form1 = new Form1();
             Application.Run(_Form1);

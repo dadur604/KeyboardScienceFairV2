@@ -2,12 +2,8 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Linq;
 using System.Collections.Generic;
-using System.IO;
 
 namespace KeyboardDesktopApp_v2._0.DisplayTools {
     class DisplayMaker {
@@ -18,7 +14,12 @@ namespace KeyboardDesktopApp_v2._0.DisplayTools {
 
         }
 
-        public List<string> MakeCDisplay(List<List<string>> cImage) {
+        /// <summary>
+        /// Makes CDisplay, by formatting CImage to have flm and latch at end of each row
+        /// </summary>
+        /// <param name="cImage"></param>
+        /// <returns></returns>
+        public List<string> MakeCDisplayFromCImage(List<List<string>> cImage) {
 
             List<string> output = new List<string>();
 
@@ -42,7 +43,13 @@ namespace KeyboardDesktopApp_v2._0.DisplayTools {
             return output;
         }
 
-        public List<List<String>> MakeCImage(Image image, Resolution res) {
+        /// <summary>
+        /// Makes CImage (List of commands for each pixel), unformatted w/out flm, lp, or row if statement
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="res"></param>
+        /// <returns></returns>
+        public List<List<String>> MakeCImageFromImage(Image image, Resolution res) {
             //Scale image to res
             Image resizedImage = ImageTools.FixSize(image, res.x, res.y);
 
@@ -99,6 +106,12 @@ namespace KeyboardDesktopApp_v2._0.DisplayTools {
             return cImage;
         }
 
+        /// <summary>
+        /// Combines two CImages, b after a.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         public List<List<string>> CombineCImages(List<List<string>> a, List<List<string>> b) {
             if (a.Count != b.Count) {
                 throw new ArgumentException("Cannot combine cimages of different length!");
@@ -107,7 +120,7 @@ namespace KeyboardDesktopApp_v2._0.DisplayTools {
             List<List<string>> output = new List<List<string>>();
 
             for (int i = 0; i < a.Count; i++) {
-                output.Add(a[i].Concat(b[i]).ToList());
+                output.Add(b[i].Concat(a[i]).ToList());
             }
 
             return output;
