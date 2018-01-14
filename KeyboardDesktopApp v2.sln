@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2005
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeyboardDesktopApp v2", "KeyboardDesktopApp_v2\KeyboardDesktopApp v2.csproj", "{8A7C2A14-F67F-438E-99C1-985E777F4323}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8A7C2A14-F67F-438E-99C1-985E777F4323}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A7C2A14-F67F-438E-99C1-985E777F4323}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A7C2A14-F67F-438E-99C1-985E777F4323}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A7C2A14-F67F-438E-99C1-985E777F4323}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {261144DF-6F6F-46F2-A1B8-1F92920C1C75}
+	EndGlobalSection
+EndGlobal
