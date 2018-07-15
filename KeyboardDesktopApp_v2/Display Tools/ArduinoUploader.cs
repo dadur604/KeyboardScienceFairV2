@@ -46,6 +46,9 @@ namespace KeyboardDesktopApp_v2._0.Display_Tools {
             //           "\\\\?\\" + 
             string bdir = AppDomain.CurrentDomain.BaseDirectory;
 
+            //string uploadObjectsDir = bdir + "ArduinoUploadObjects/";
+            string uploadObjectsDir = Program.programState.UploadObjectsPath;
+
             cmds.Add($"-patmega328p ");
             cmds.Add($"-carduino ");
             cmds.Add($"-P\"{comPort}\" ");
@@ -57,7 +60,7 @@ namespace KeyboardDesktopApp_v2._0.Display_Tools {
             string cmdInput = string.Join("", cmds.ToArray());
 
             Process cmd = new Process();
-            cmd.StartInfo.FileName = "ArduinoUploadObjects/avrdude.exe";
+            cmd.StartInfo.FileName = $"{uploadObjectsDir}avrdude.exe";
             cmd.StartInfo.Arguments = cmdInput;
             cmd.StartInfo.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
             cmd.StartInfo.RedirectStandardOutput = true;

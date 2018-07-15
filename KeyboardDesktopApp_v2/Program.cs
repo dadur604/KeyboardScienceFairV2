@@ -69,6 +69,7 @@ namespace KeyboardDesktopApp_v2._0 {
             ProgramState programState = new ProgramState();
 
 
+
             Application.Run(_Form_Main);
             
         }
@@ -113,6 +114,7 @@ namespace KeyboardDesktopApp_v2._0 {
             var imageAB_H = await compiler.ArduinoToHexAsync("output\\output.ino", true, new System.Diagnostics.DataReceivedEventHandler(
                 (s, e) => {
                     try {
+                        Console.WriteLine(e.Data);
                         progressListener.Message(e.Data);
                     } catch (Exception er) {
                         _Form_Main.DebugHandle(er.Message, true);

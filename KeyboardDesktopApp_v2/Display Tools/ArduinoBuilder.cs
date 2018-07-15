@@ -77,11 +77,14 @@ namespace KeyboardDesktopApp_v2._0.Display_Tools {
             //           "\\\\?\\" + 
             string bdir = AppDomain.CurrentDomain.BaseDirectory;
 
+            //string compileObjectsDir = bdir + "ArduinoCompileObjects\\";
+            string compileObjectsDir = Program.programState.CompileObjectsPath;
+
             cmds.Add("-compile -logger=machine ");
-            cmds.Add($"-hardware=\" {bdir}ArduinoCompileObjects\\hardware\" ");
-            cmds.Add($"-tools=\" {bdir}ArduinoCompileObjects\\tools-builder\" ");
-            cmds.Add($"-tools=\" {bdir}ArduinoCompileObjects\\avr\" ");
-            cmds.Add($"-built-in-libraries=\" {bdir}ArduinoCompileObjects\\libraries\" ");
+            cmds.Add($"-hardware=\" {compileObjectsDir}hardware\" ");
+            cmds.Add($"-tools=\" {compileObjectsDir}tools-builder\" ");
+            cmds.Add($"-tools=\" {compileObjectsDir}hardware\\tools\\avr\" ");
+            cmds.Add($"-built-in-libraries=\" {compileObjectsDir}libraries\" ");
 
             cmds.Add($"-fqbn=arduino:avr:uno ");
             cmds.Add($"-ide-version=10607 -warnings=none ");
@@ -93,7 +96,7 @@ namespace KeyboardDesktopApp_v2._0.Display_Tools {
             string cmdInput = string.Join("", cmds.ToArray());
 
             Process cmd = new Process();
-            cmd.StartInfo.FileName = "ArduinoCompileObjects/arduino-builder";
+            cmd.StartInfo.FileName = $"{compileObjectsDir}/arduino-builder";
             cmd.StartInfo.Arguments = cmdInput;
             cmd.StartInfo.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
             cmd.StartInfo.RedirectStandardOutput = true;
