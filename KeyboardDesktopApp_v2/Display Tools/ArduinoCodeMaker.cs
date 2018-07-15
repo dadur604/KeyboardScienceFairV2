@@ -16,12 +16,24 @@ namespace KeyboardDesktopApp_v2._0.DisplayTools {
        /// <summary>
        /// Creates compilable arduino code from multiple cdisplays, allocating secuential layout numbers
        /// </summary>
-       /// <param name="CDisplay"></param>
+       /// <param name="KLayouts"></param>
        /// <returns>[0] = List<String> representing arduino code
        /// [1] = int representing number of layouts</returns>
-        public Tuple<List<string>, int> MakeArduinoCodeFromCDisplay(List<List<string>> CDisplay) {
-            //TODO: make arduino code from multiple cdisplays, integrating layouts
+        public Tuple<List<string>, SerializableDictionary<decimal, int>> MakeArduinoCodeFromCDisplay(List<KLayout> KLayouts) {
 
+            List<string> cdisplay = new List<string>();
+            SerializableDictionary<decimal, int> idDictionary = new SerializableDictionary<decimal, int>();
+
+            for (int i = 0; i < KLayouts.Count; i++) {
+                KLayouts[i].cDisplay.Insert(0, $"if (current == '{i}'){{");
+                KLayouts[i].cDisplay.Add("}");
+                cdisplay.AddRange(KLayouts[i].cDisplay);
+                idDictionary.Add(KLayouts[i].WID, i);
+            }
+
+
+
+            return new Tuple<List<string>, SerializableDictionary<decimal, int>>(MakeArduinoCodeFromCDisplay(cdisplay), idDictionary);
         }
 
         /// <summary>

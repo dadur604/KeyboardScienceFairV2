@@ -15,88 +15,111 @@ namespace KeyboardDesktopApp_v2._0 {
         const int THRESHOLD_SLIDER_CLICKS = 20;
         private Form_CreateLayout parent;
 
+
+
         public Form_Preview(Form_CreateLayout _parent) {
             parent = _parent;
             InitializeComponent();
         }
 
         private void Form_Preview_Shown(object sender, EventArgs e) {
-            if (parent.pictureBox_left.Image != null) {
-                var leftTag = (object[])parent.pictureBox_left.Tag;
-                trackBar_leftThresh.Value = (int)((float)leftTag[1] * THRESHOLD_SLIDER_CLICKS);
-                Image leftImage = new Bitmap(leftTag[0].ToString());
-                leftImage = ImageTools.FixSize(leftImage, DisplayMaker.IMAGE_SIZE);
-                ImageTools.MakeBW(leftImage, (float)trackBar_leftThresh.Value / THRESHOLD_SLIDER_CLICKS);
-                leftImage = ImageTools.ResizeImage(leftImage, pictureBox_left.Width, pictureBox_left.Height);
-                pictureBox_left.Image = leftImage;
-            } 
-            
-            if (parent.pictureBox_right.Image != null) {
-                var rightTag = (object[])parent.pictureBox_right.Tag;
-                trackBar_rightThresh.Value = (int)((float)rightTag[1] * THRESHOLD_SLIDER_CLICKS);
-                Image rightImage = new Bitmap(rightTag[0].ToString());
-                rightImage = ImageTools.FixSize(rightImage, DisplayMaker.IMAGE_SIZE);
-                ImageTools.MakeBW(rightImage, (float)trackBar_rightThresh.Value / THRESHOLD_SLIDER_CLICKS);
-                rightImage = ImageTools.ResizeImage(rightImage, pictureBox_right.Width, pictureBox_right.Height);
-                pictureBox_right.Image = rightImage;
+
+            panel_Preview.Controls.Clear();
+
+            foreach (var pBox in parent.pictureBoxes.Where((x) => x.Image != null)) {
+                var tag = (PreviewTag)pBox.Tag;
+                var previewCount = panel_Preview.Controls.OfType<PictureBox>().Count();
+                var scrollAmmt = panel_Preview.HorizontalScroll.Value;
+
+                var prevPBox = new PictureBox();
+                Point newLocation = new Point(3, 3);
+                //              width + margin
+                newLocation.X += ((108 + 15) * previewCount) - scrollAmmt;
+                prevPBox.Location = newLocation;
+                prevPBox.BackColor = Color.Gray;
+                prevPBox.Size = new Size(108, 72);
+
+                var prevScroll = new TrackBar();
+                newLocation = new Point(3, 90);
+                newLocation.X += ((108 + 15) * previewCount) - scrollAmmt;
+                prevScroll.Location = newLocation;
+                prevScroll.Maximum = 20;
+                prevScroll.Value = (int)(tag.threshold * THRESHOLD_SLIDER_CLICKS);
+                prevScroll.TickStyle = TickStyle.None;
+                prevScroll.Scroll += trackBar_Scroll;
+
+                var prevCheck = new CheckBox();
+                newLocation = new Point(3, 118);
+                newLocation.X += ((108 + 15) * previewCount) - scrollAmmt;
+                prevCheck.Location = newLocation;
+                prevCheck.Text = "Invert";
+                prevCheck.Checked = tag.invert;
+                prevCheck.CheckedChanged += checkBox_CheckedChanged;
+
+                prevPBox.Tag = new object[] { pBox, prevScroll, prevCheck };
+                prevScroll.Tag = new object[] { prevPBox, pBox };
+                prevCheck.Tag = new object[] { prevPBox, pBox, prevScroll };
+
+                prevPBox.Parent = panel_Preview;
+                prevCheck.Parent = panel_Preview;
+                prevScroll.Parent = panel_Preview;
+
+                //if (pBox.Image != null) {
+                    Image image = tag.image;
+                    image = ImageTools.FixSize(image, DisplayMaker.IMAGE_SIZE);
+                    ImageTools.MakeBW(image, (float)prevScroll.Value / THRESHOLD_SLIDER_CLICKS);
+                    image = ImageTools.ResizeImage(image, prevPBox.Width, prevPBox.Height);
+                    prevPBox.Image = image;
+                //}
+
+                trackBar_Scroll(prevScroll, null);
             }
+
         }
 
-        private void trackBar_leftThresh_Scroll(object sender, EventArgs e) {
-            var leftTag = (object[])parent.pictureBox_left.Tag;
-            Image leftImage = new Bitmap(leftTag[0].ToString());
-            leftImage = ImageTools.FixSize(leftImage, DisplayMaker.IMAGE_SIZE);
-            ImageTools.MakeBW(leftImage, (float)trackBar_leftThresh.Value / THRESHOLD_SLIDER_CLICKS);
-            if ((bool)leftTag[2]) {
-                ImageTools.InvertImage(leftImage);
+        private void trackBar_Scroll(object sender, EventArgs e) {
+            var pbox = (PictureBox)((object[])((TrackBar)sender).Tag)[1];
+            var prevPBox = (PictureBox)((object[])((TrackBar)sender).Tag)[0];
+            var tag = (PreviewTag)pbox.Tag;
+            Image image = tag.image;
+            image = ImageTools.FixSize(image, DisplayMaker.IMAGE_SIZE);
+            ImageTools.MakeBW(image, (float)((TrackBar)sender).Value / THRESHOLD_SLIDER_CLICKS);
+            if (tag.invert) {
+                ImageTools.InvertImage(image);
             }
-            leftImage = ImageTools.ResizeImage(leftImage, pictureBox_left.Width, pictureBox_left.Height);
-            pictureBox_left.Image = leftImage;
-
+            image = ImageTools.ResizeImage(image, prevPBox.Width, prevPBox.Height);
+            prevPBox.Image = image;
         }
 
-        private void trackBar_rightThresh_Scroll(object sender, EventArgs e) {
-            var rightTag = (object[])parent.pictureBox_right.Tag;
-            Image rightImage = new Bitmap(rightTag[0].ToString());
-            rightImage = ImageTools.FixSize(rightImage, DisplayMaker.IMAGE_SIZE);
-            ImageTools.MakeBW(rightImage, (float)trackBar_rightThresh.Value / THRESHOLD_SLIDER_CLICKS);
-            if ((bool)rightTag[2]) {
-                ImageTools.InvertImage(rightImage);
-            }
-            rightImage = ImageTools.ResizeImage(rightImage, pictureBox_right.Width, pictureBox_right.Height);
-            pictureBox_right.Image = rightImage;
+        private void checkBox_CheckedChanged(object sender, EventArgs e) {
+            var pbox = (PictureBox)((object[])((CheckBox)sender).Tag)[1];
+            var prevPBox = (PictureBox)((object[])((CheckBox)sender).Tag)[0];
+            var scroll = ((object[])((CheckBox)sender).Tag)[2];
+            var tag = (PreviewTag)pbox.Tag;
+
+            tag.invert = ((CheckBox)sender).Checked;
+            pbox.Tag = tag;
+
+            trackBar_Scroll(scroll, null);
         }
+
+
 
         private void button_accept_Click(object sender, EventArgs e) {
-            var leftTag = (object[])parent.pictureBox_left.Tag;
-            var rightTag = (object[])parent.pictureBox_right.Tag;
+            foreach (var prevPBox in panel_Preview.Controls.OfType<PictureBox>()) {
+                var temptag = ((object[])prevPBox.Tag);
+                var pbox = (PictureBox)temptag[0];
+                var scroll = (TrackBar)temptag[1];
+                var check = (CheckBox)temptag[2];
 
-            leftTag[1] = (float)trackBar_leftThresh.Value / THRESHOLD_SLIDER_CLICKS;
-            rightTag[1] = (float)trackBar_rightThresh.Value / THRESHOLD_SLIDER_CLICKS;
+                var tag = (PreviewTag)pbox.Tag;
+                tag.threshold = (float)scroll.Value / THRESHOLD_SLIDER_CLICKS;
+                tag.invert = check.Checked;
 
-            leftTag[2] = checkBox_leftInvert.Checked;
-            rightTag[2] = checkBox_rightInvert.Checked;
-
-            parent.pictureBox_left.Tag = leftTag;
-            parent.pictureBox_right.Tag = rightTag;
+                pbox.Tag = tag;
+            }
 
             this.Close();
-        }
-
-        private void checkBox_leftInvert_CheckedChanged(object sender, EventArgs e) {
-            var leftTag = (object[])parent.pictureBox_left.Tag;
-            leftTag[2] = checkBox_leftInvert.Checked;
-            parent.pictureBox_left.Tag = leftTag;
-
-            trackBar_leftThresh_Scroll(null, null);
-        }
-
-        private void checkBox_rightInvert_CheckedChanged(object sender, EventArgs e) {
-            var rightTag = (object[])parent.pictureBox_right.Tag;
-            rightTag[2] = checkBox_rightInvert.Checked;
-            parent.pictureBox_right.Tag = rightTag;
-
-            trackBar_rightThresh_Scroll(null, null);
         }
     }
 }

@@ -18,51 +18,69 @@ namespace KeyboardDesktopApp_v2._0 {
         Form_Preview _Form_Preview;
         Form_Main parent;
 
+        internal List<PictureBox> pictureBoxes;
+
         public Form_CreateLayout(Form_Main _parent) {
             InitializeComponent();
 
             parent = _parent;
             _Form_Preview = new Form_Preview(this);
+
+            panel_PictureBoxes.ControlAdded += Form_CreateLayout_ControlAdded;
+            panel_PictureBoxes.ControlRemoved += Form_CreateLayout_ControlAdded;
+
+            Form_CreateLayout_ControlAdded(null, null);
+        }
+
+        private void Form_CreateLayout_ControlAdded(object sender, ControlEventArgs e) {
+            pictureBoxes = panel_PictureBoxes.Controls.OfType<PictureBox>().ToList();
+            foreach (var pb in pictureBoxes) {
+                pb.DoubleClick -= pictureBox_DoubleClick;
+                pb.DoubleClick += pictureBox_DoubleClick;
+            }
         }
 
         private void button_preview_Click(object sender, EventArgs e) {
             _Form_Preview.ShowDialog();
         }
 
-        private void pictureBox_left_DoubleClick(object sender, EventArgs e) {
-            DialogResult result = openFileDialog_picture.ShowDialog();
-            if (result == DialogResult.OK) {
-                var image = new Bitmap(openFileDialog_picture.FileName);
-                var fixedImage = ImageTools.FixSize(image, pictureBox_left.Width, pictureBox_left.Height);
-                pictureBox_left.Image = fixedImage;
-                pictureBox_left.Tag = new object[] { openFileDialog_picture.FileName, 0.8f, false };
-            }
-        }
+        private void pictureBox_DoubleClick(object sender, EventArgs e) {
+            PictureBox pBox = (PictureBox)sender;
 
-        private void pictureBox_right_DoubleClick(object sender, EventArgs e) {
+            openFileDialog_picture.FileName = "";
             DialogResult result = openFileDialog_picture.ShowDialog();
             if (result == DialogResult.OK) {
                 var image = new Bitmap(openFileDialog_picture.FileName);
-                var fixedImage = ImageTools.FixSize(image, pictureBox_left.Width, pictureBox_left.Height);
-                pictureBox_right.Image = fixedImage;
-                pictureBox_right.Tag = new object[] { openFileDialog_picture.FileName, 0.8f, false };
+                var fixedImage = ImageTools.FixSize(image, pBox.Width, pBox.Height);
+                pBox.Image = fixedImage;
+                pBox.Tag = new PreviewTag(image, 0.8f, false);
             }
         }
 
         private void button_save_Click(object sender, EventArgs e) {
             DisplayMaker displayMaker = new DisplayMaker();
-            var imageATag = (object[])pictureBox_left.Tag;
-            var imageBTag = (object[])pictureBox_right.Tag;
-            Image imageA = new Bitmap(imageATag[0].ToString());
-            Image imageB = new Bitmap(imageBTag[0].ToString());
-            List<List<string>> imageA_C = displayMaker.MakeCImageFromImage(imageA, DisplayMaker.IMAGE_SIZE, (float)imageATag[1], (bool)imageATag[2]);
-            List<List<string>> imageB_C = displayMaker.MakeCImageFromImage(imageB, DisplayMaker.IMAGE_SIZE, (float)imageBTag[1], (bool)imageBTag[2]);
+            var cImages = new List<    List<List<string>>    >();
+            //var imagesAsStrings = new List<string>();
+            var previewTags = new List<PreviewTag>();
 
-            List<string> displayAB_C = displayMaker.MakeCDisplayFromCImage(new List<List<string>>[] { imageA_C, imageB_C });
+            foreach (var pBox in pictureBoxes) {
+                var pBoxTag = (PreviewTag)pBox.Tag;
+                previewTags.Add(pBoxTag);
 
-            var klayout = new KLayout(textBox_name.Text, numericUpDown_ID.Value, displayAB_C);
+                cImages.Add(displayMaker.MakeCImageFromImage(pBoxTag.image, DisplayMaker.IMAGE_SIZE, pBoxTag.threshold, pBoxTag.invert));
 
-            var klayoutfile = KLayout.KLayoutToFile(klayout);
+                //MemoryStream imageAsStream = new MemoryStream();
+                //image = ImageTools.FixSize(image, DisplayMaker.IMAGE_SIZE);
+                //image.Save(imageAsStream, System.Drawing.Imaging.ImageFormat.Jpeg);
+                //var imageAsString = Convert.ToBase64String(imageAsStream.ToArray());
+                //imagesAsStrings.Add(imageAsString);
+            }
+
+            List<string> cDisplay = displayMaker.MakeCDisplayFromCImage(cImages.ToArray());
+
+            var klayout = new KLayout(textBox_name.Text, numericUpDown_ID.Value, cDisplay, previewTags);
+
+            //var klayoutfile = KLayout.KLayoutToFile(klayout);
 
             string file;
             saveFileDialog_save.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory + "layouts\\";
@@ -73,8 +91,56 @@ namespace KeyboardDesktopApp_v2._0 {
             } else {
                 return;
             }
-            //Directory.CreateDirectory(file);
-            File.AppendAllLines(file, klayoutfile);
+            ////Directory.CreateDirectory(file);
+            //File.WriteAllLines(file, klayoutfile);
+
+            BinarySerializer.WriteToBinaryFile<KLayout>(file, klayout);
+        }
+
+        private void button_addImage_Click(object sender, EventArgs e) {
+            var pBox = new PictureBox();
+            Point newLocation = new Point(3, 3);
+            newLocation.X += ((108 + 15) * pictureBoxes.Count) - panel_PictureBoxes.HorizontalScroll.Value;
+            
+            pBox.Location = newLocation;
+            pBox.BackColor = Color.Gray;
+            pBox.Size = new Size(108, 72);
+            pBox.Parent = panel_PictureBoxes;
+        }
+
+        private void button_removeImage_Click(object sender, EventArgs e) {
+            if (pictureBoxes.Count > 0) {
+                panel_PictureBoxes.Controls.Remove(pictureBoxes.Last());
+            }
+        }
+
+
+
+        public void Show(KLayout klayout) {
+
+            while (pictureBoxes.Count < klayout.images.Count) {
+                button_addImage_Click(null, null);
+            }
+
+            while (pictureBoxes.Count > klayout.images.Count) {
+                button_removeImage_Click(null, null);
+            }
+
+            for (int i = 0; i < klayout.images.Count; i++) {
+                //var temp = Convert.FromBase64String(klayout.images[i]);
+                //var tempmem = new MemoryStream(temp);
+                //Image image = new Bitmap(tempmem);
+                //image = ImageTools.ResizeImage(image, pictureBoxes[i].Width, pictureBoxes[i].Height);
+                var image = klayout.images[i].image;
+                var fixedImage = ImageTools.FixSize(image, pictureBoxes[i].Width, pictureBoxes[i].Height);
+                pictureBoxes[i].Image = fixedImage;
+                pictureBoxes[i].Tag = klayout.images[i];
+            }
+
+            textBox_name.Text = klayout.Name;
+            numericUpDown_ID.Value = klayout.WID;
+
+            ShowDialog();
         }
     }
 }

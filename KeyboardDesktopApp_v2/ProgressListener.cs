@@ -29,6 +29,10 @@ namespace KeyboardDesktopApp_v2._0 {
                 progressBar_compileUpload.BeginInvoke(new MethodInvoker(() => progressBar_compileUpload.Value += 33));
                 return;
             }
+            var errorMatch = Regex.Match(data, @"can't open device");
+            if (errorMatch.Success) {
+                throw new Exception("Com port cannot be opened! Make sure device is connected.");
+            }
             Console.WriteLine(data);
         }
     }

@@ -18,6 +18,7 @@ namespace KeyboardDesktopApp_v2._0 {
     /// </summary>
     internal class Program {
         public static Form_Main _Form_Main;
+        public static ProgramState programState;
 
         // Define all external functions
         [DllImport("user32.dll")]
@@ -30,12 +31,12 @@ namespace KeyboardDesktopApp_v2._0 {
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr ProcessId);
 
         // Define a few constant variables
-        public static int engLayout = 67699721;
+        public const int engLayout = 67699721;
 
-        public static int armLayout = -266009557;
+        public const int armLayout = -266009557;
 
-        public static bool engState = false;
-        public static bool armState = false;
+        public static Dictionary<decimal, int> idDictionary = new Dictionary<decimal, int>();
+        public static int defaultIndex = 0;
 
         // Start the Serial Communication Port
         public static SerialPort ser = new SerialPort("COM3", 9600);
@@ -64,7 +65,8 @@ namespace KeyboardDesktopApp_v2._0 {
             _Form_Main = new Form_Main();
 
             //Start();
-            _Form_Main.button_go.Click += Button_go_Click;
+            //_Form_Main.button_go.Click += Button_go_Click;
+            ProgramState programState = new ProgramState();
 
 
             Application.Run(_Form_Main);
@@ -99,22 +101,36 @@ namespace KeyboardDesktopApp_v2._0 {
         async internal static void CreateAndUpload(IEnumerable<KLayout> layouts) {
 
             var arduinoCodeMaker = new ArduinoCodeMaker();
-            var cDisplays = layouts.Select(x => x.cDisplay);
-            var arduinoCode = arduinoCodeMaker.MakeArduinoCodeFromCDisplay(cDisplays);
-
-
-            
-            
+            var output = arduinoCodeMaker.MakeArduinoCodeFromCDisplay(layouts.ToList());
+            var arduinoCode = output.Item1;
+            programState.idDictionary = output.Item2;
 
             Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + "output\\");
-            File.WriteAllLines(AppDomain.CurrentDomain.BaseDirectory + "output\\output.ino", displayAB_A);
+            File.WriteAllLines(AppDomain.CurrentDomain.BaseDirectory + "output\\output.ino", arduinoCode);
             var compiler = new ArduinoBuilder();
             var uploader = new HexUploader();
             var progressListener = new ProgressListener(_Form_Main.progressBar_compileUpload);
             var imageAB_H = await compiler.ArduinoToHexAsync("output\\output.ino", true, new System.Diagnostics.DataReceivedEventHandler(
-                (s, e) => progressListener.Message(e.Data)));
+                (s, e) => {
+                    try {
+                        progressListener.Message(e.Data);
+                    } catch (Exception er) {
+                        _Form_Main.ErrorHandle(er.Message);
+                    }
+
+                }));
             await uploader.UploadHexAsync(imageAB_H + "\\output.ino.hex", ser, new System.Diagnostics.DataReceivedEventHandler(
-                (s, e) => progressListener.Message(e.Data)));
+                (s, e) => {
+                    try {
+                        progressListener.Message(e.Data);
+                    } catch (Exception er) {
+                        _Form_Main.ErrorHandle(er.Message);
+                    }
+                    
+                }));
+
+            // TODO: Success uploaded
+            programState.KLayouts = layouts.ToList();
         }
 
         /// <summary>
@@ -122,7 +138,22 @@ namespace KeyboardDesktopApp_v2._0 {
         /// </summary>
         private static void SendSerial() {
             //  Console.WriteLine(layout);
-            while(true) {
+            bool found = false;
+
+            foreach (var id in programState.idDictionary) {
+                if (layout == id.Key) {
+                    ser.Write($"{id.Value}");
+
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                ser.Write($"{programState.defaultIndex}");
+            }
+
+            while (true) {
                 _suspendEvent.WaitOne(Timeout.Infinite);
 
                 //Get the current window's thread id
@@ -133,22 +164,50 @@ namespace KeyboardDesktopApp_v2._0 {
                 layout = (int)GetKeyboardLayout(w_tid);
 
                 if(layout != layout_b) {
-                    if(layout == engLayout) {
-                        ser.Write("1");
-                        Console.WriteLine("English");
-                        //Form1.("English");
-                        //_Form1.AppendTextDebug("English");
-                    } else if(layout == armLayout) {
-                        ser.Write("2");
-                        Console.WriteLine("Armenian");
-                        //_Form1.AppendTextDebug("Armenian");
-                    } else {
-                        ser.Write("1");
-                        Console.WriteLine("Unknown");
-                        //_Form1.AppendTextDebug("Unknown");
+
+                    switch (layout) {
+                        case engLayout:
+                            Console.WriteLine($"{layout} | English");
+                            break;
+                        case armLayout:
+                            Console.WriteLine($"{layout} | Armenian");
+                            break;
+                        default:
+                            Console.WriteLine($"{layout}");
+                            break;
                     }
+
+                    found = false;
+
+                    foreach (var id in programState.idDictionary) {
+                        if (layout == id.Key) {
+                            ser.Write($"{id.Value}");
+
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        ser.Write($"{programState.defaultIndex}");
+                    }
+
+                    //if(layout == engLayout) {
+                    //    ser.Write("0");
+                    //    Console.WriteLine("English");
+                    //    //Form1.("English");
+                    //    //_Form1.AppendTextDebug("English");
+                    //} else if(layout == armLayout) {
+                    //    ser.Write("1");
+                    //    Console.WriteLine("Armenian");
+                    //    //_Form1.AppendTextDebug("Armenian");
+                    //} else {
+                    //    ser.Write("0");
+                    //    Console.WriteLine("Unknown");
+                    //    //_Form1.AppendTextDebug("Unknown");
+                    //}
                 }
-            }
+             }
         }
 
         /// <summary>
@@ -180,9 +239,28 @@ namespace KeyboardDesktopApp_v2._0 {
         /// Start method will open serial port, and start threads.
         /// </summary>
         public static void Start() {
+
+            if (programState == null) {
+                //TODO Error Handle
+                return;
+            }
+            if (programState.KLayouts == null) {
+                return;
+            }
+            if (programState.KLayouts.Any(x => x == null)) {
+                return;
+            }
+            if (programState.idDictionary == null) {
+                return;
+            }
+            
+
             try {
-                if(ser.IsOpen) {
-                    ser.Close();
+
+                _suspendEvent.Reset();
+
+                if (ser.IsOpen) {
+                    Program.CloseSerial();
                 }
                 ser.Open();
 
@@ -192,10 +270,21 @@ namespace KeyboardDesktopApp_v2._0 {
                 if(!threadRecieve.IsAlive) {
                     threadRecieve.Start();
                 }
+
+                _suspendEvent.Set();
+                _Form_Main.UpdateThreadStatus(true);
                 //_Form1.buttonStart_Update();
             } catch(Exception e) {
-               
+                _Form_Main.ErrorHandle(e.Message);
             }
+        }
+
+        public static void CloseSerial() {
+            if (ser.IsOpen) {
+                ser.Close();
+            }
+
+            _Form_Main.UpdateThreadStatus(false);
         }
 
     }

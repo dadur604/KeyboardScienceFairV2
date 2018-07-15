@@ -22,7 +22,7 @@ namespace KeyboardDesktopApp_v2._0.Display_Tools {
         //}
 
         public void UploadHex(string filepath, SerialPort ser, DataReceivedEventHandler listener){
-            ser.Close();
+            Program.CloseSerial();
             Process cmd = SetupCMD(filepath, ser.PortName);
 
             cmd.OutputDataReceived += listener;
@@ -33,7 +33,6 @@ namespace KeyboardDesktopApp_v2._0.Display_Tools {
             cmd.BeginErrorReadLine();
 
             cmd.WaitForExit();
-            ser.Open();
         }
 
         public Task UploadHexAsync(string filepath, SerialPort ser, DataReceivedEventHandler listener) {
