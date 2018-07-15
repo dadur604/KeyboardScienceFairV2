@@ -108,7 +108,7 @@ namespace KeyboardDesktopApp_v2._0 {
                     // TODO
                 } catch (ArgumentException er) {
                     var shortenedFileName = layoutfile.Substring(Math.Max(0, layoutfile.Length - 25));
-                    ErrorHandle(er.Message + " : ..." + shortenedFileName);
+                    DebugHandle(er.Message + " : ..." + shortenedFileName, true);
                     continue;
                 }
             }
@@ -150,7 +150,7 @@ namespace KeyboardDesktopApp_v2._0 {
                     }
                     checkedListBox_layouts.Items.Add(klayout);
                 } catch (ArgumentException er) {
-                    ErrorHandle(er.Message);
+                    DebugHandle(er.Message, true);
                     continue;
                 }
 
@@ -166,15 +166,15 @@ namespace KeyboardDesktopApp_v2._0 {
             //var checkedItems = checkedListBox_layouts.CheckedItems
 
             if (checkedListBox_layouts.CheckedItems.Count < 1) {
-                ErrorHandle("Selected Layouts must be 1 or 2!");
+                DebugHandle("Selected Layouts must be 1 or 2!", true);
                 return;
             }
             if (checkedListBox_layouts.CheckedItems.Count > 2) {
-                ErrorHandle("Selected Layouts must be 1 or 2!");
+                DebugHandle("Selected Layouts must be 1 or 2!", true);
                 return;
             }
             if (!checkedListBox_layouts.CheckedItems.Contains(defaultLayout)) {
-                ErrorHandle("Default layout must be selected!");
+                DebugHandle("Default layout must be selected!", true);
                 return;
             }
 
@@ -185,7 +185,7 @@ namespace KeyboardDesktopApp_v2._0 {
             try {
                 Program.CreateAndUpload(layouts);
             } catch (Exception er) {
-                ErrorHandle(er.Message);
+                DebugHandle(er.Message, true);
             }
             
         }
@@ -213,12 +213,15 @@ namespace KeyboardDesktopApp_v2._0 {
 
         }
 
-        public void ErrorHandle(string error) {
-            textBox_Debug.Invoke(new MethodInvoker(() => textBox_Debug.AppendText(error + "\n")));
-            statusStrip.Invoke(new MethodInvoker(() => toolStripStatusLabel.Text = error));
-            Program.errorState = true;
-            Program.errorMsg = error;
+        public void DebugHandle(string text, bool error = false) {
+            textBox_Debug.Invoke(new MethodInvoker(() => textBox_Debug.AppendText(text + "\n")));
+            if (error) {
+                Program.errorState = true;
+                Program.errorMsg = text;
+                statusStrip.Invoke(new MethodInvoker(() => toolStripStatusLabel.Text = text));
+            }
         }
+
 
         private void toolStripStatusLabel_Click(object sender, EventArgs e) {
             tabControl_Main.Invoke(new MethodInvoker(() => tabControl_Main.SelectedTab = tabPage_Debug));

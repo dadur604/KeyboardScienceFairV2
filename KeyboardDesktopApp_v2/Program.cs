@@ -115,16 +115,16 @@ namespace KeyboardDesktopApp_v2._0 {
                     try {
                         progressListener.Message(e.Data);
                     } catch (Exception er) {
-                        _Form_Main.ErrorHandle(er.Message);
+                        _Form_Main.DebugHandle(er.Message, true);
                     }
 
                 }));
-            await uploader.UploadHexAsync(imageAB_H + "\\output.ino.hex", ser, new System.Diagnostics.DataReceivedEventHandler(
+            await uploader.UploadHexAsync((string)(imageAB_H + "\\output.ino.hex"), ser, new System.Diagnostics.DataReceivedEventHandler(
                 (s, e) => {
                     try {
                         progressListener.Message(e.Data);
                     } catch (Exception er) {
-                        _Form_Main.ErrorHandle(er.Message);
+                        _Form_Main.DebugHandle((string)er.Message, true);
                     }
                     
                 }));
@@ -167,13 +167,13 @@ namespace KeyboardDesktopApp_v2._0 {
 
                     switch (layout) {
                         case engLayout:
-                            Console.WriteLine($"{layout} | English");
+                            _Form_Main.DebugHandle($"{layout} | English");
                             break;
                         case armLayout:
-                            Console.WriteLine($"{layout} | Armenian");
+                            _Form_Main.DebugHandle($"{layout} | Armenian");
                             break;
                         default:
-                            Console.WriteLine($"{layout}");
+                            _Form_Main.DebugHandle($"{layout}");
                             break;
                     }
 
@@ -275,7 +275,7 @@ namespace KeyboardDesktopApp_v2._0 {
                 _Form_Main.UpdateThreadStatus(true);
                 //_Form1.buttonStart_Update();
             } catch(Exception e) {
-                _Form_Main.ErrorHandle(e.Message);
+                _Form_Main.DebugHandle(e.Message, true);
             }
         }
 

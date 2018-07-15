@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace KeyboardDesktopApp_v2._0 {
+
     [Serializable]
     public class KLayout {
 
