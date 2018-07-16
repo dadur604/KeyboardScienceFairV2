@@ -54,12 +54,21 @@ namespace KeyboardDesktopApp_v2._0 {
 
         public static int layout = (int)GetKeyboardLayout(0);
 
+        public static bool running {
+            get {
+                if (threadSend.IsAlive && threadRecieve.IsAlive && _suspendEvent.WaitOne(0) && ser.IsOpen) {
+                    return true;
+                }
+                return false;
+            }
+        }
+
         /// <summary>
         /// Entry point for program. Starts Form1, and runs start method
         /// </summary>
         /// <param name="args"></param>
         [STAThread]
-        public static void Main(string[] args) {
+        public static void Main(string[] args){
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             _Form_Main = new Form_Main();
@@ -243,16 +252,19 @@ namespace KeyboardDesktopApp_v2._0 {
         public static void Start() {
 
             if (programState == null) {
-                //TODO Error Handle
+                _Form_Main.DebugHandle("Error: No Program State! Try restarting program.", true);
                 return;
             }
             if (programState.KLayouts == null) {
+                _Form_Main.DebugHandle("Program state error! Try re_uploading layouts.", true);
                 return;
             }
             if (programState.KLayouts.Any(x => x == null)) {
+                _Form_Main.DebugHandle("Program state error! Try re_uploading layouts.", true);
                 return;
             }
             if (programState.idDictionary == null) {
+                _Form_Main.DebugHandle("Program state error! Try re_uploading layouts.", true);
                 return;
             }
             
@@ -261,9 +273,9 @@ namespace KeyboardDesktopApp_v2._0 {
 
                 _suspendEvent.Reset();
 
-                if (ser.IsOpen) {
-                    Program.CloseSerial();
-                }
+
+                CloseSerial();
+
                 ser.Open();
 
                 if(!threadSend.IsAlive) {
@@ -274,11 +286,27 @@ namespace KeyboardDesktopApp_v2._0 {
                 }
 
                 _suspendEvent.Set();
-                _Form_Main.UpdateThreadStatus(true);
+                _Form_Main.UpdateThreadStatus();
                 //_Form1.buttonStart_Update();
             } catch(Exception e) {
                 _Form_Main.DebugHandle(e.Message, true);
             }
+
+            _Form_Main.RefreshActiveLayoutsList();
+        }
+
+        public static void Stop() {
+            try {
+
+                _suspendEvent.Reset();
+
+                CloseSerial();
+
+            } catch (Exception e) {
+                _Form_Main.DebugHandle(e.Message, true);
+            }
+
+            _Form_Main.UpdateThreadStatus();
         }
 
         public static void CloseSerial() {
@@ -286,7 +314,7 @@ namespace KeyboardDesktopApp_v2._0 {
                 ser.Close();
             }
 
-            _Form_Main.UpdateThreadStatus(false);
+            _Form_Main.UpdateThreadStatus();
         }
 
     }

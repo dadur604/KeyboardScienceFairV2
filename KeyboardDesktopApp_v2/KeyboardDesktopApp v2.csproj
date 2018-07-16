@@ -3313,7 +3313,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>ROBOCOPY "$(SolutionDir)\KeyboardDesktopApp_v2\ArduinoCompileObjects" "$(TargetDir)ArduinoCompileObjects"  /E
-ROBOCOPY "$(SolutionDir)\KeyboardDesktopApp_v2\ArduinoUploadObjects" "$(TargetDir)ArduinoUploadObjects"  /E</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

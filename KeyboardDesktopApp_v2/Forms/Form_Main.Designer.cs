@@ -34,19 +34,20 @@
             this.button_start = new System.Windows.Forms.Button();
             this.tabControl_Main = new System.Windows.Forms.TabControl();
             this.tabPage_Main = new System.Windows.Forms.TabPage();
+            this.listBox_activeKLayouts = new System.Windows.Forms.ListBox();
             this.label_threadStatus = new System.Windows.Forms.Label();
             this.tabPage_Layouts = new System.Windows.Forms.TabPage();
             this.pictureBox_defaultLayout = new System.Windows.Forms.PictureBox();
-            this.statusStrip = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.tabPage_Debug = new System.Windows.Forms.TabPage();
             this.textBox_Debug = new System.Windows.Forms.TextBox();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.tabControl_Main.SuspendLayout();
             this.tabPage_Main.SuspendLayout();
             this.tabPage_Layouts.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_defaultLayout)).BeginInit();
-            this.statusStrip.SuspendLayout();
             this.tabPage_Debug.SuspendLayout();
+            this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // progressBar_compileUpload
@@ -145,6 +146,7 @@
             // 
             // tabPage_Main
             // 
+            this.tabPage_Main.Controls.Add(this.listBox_activeKLayouts);
             this.tabPage_Main.Controls.Add(this.label_threadStatus);
             this.tabPage_Main.Controls.Add(this.button_start);
             this.tabPage_Main.Location = new System.Drawing.Point(4, 22);
@@ -154,6 +156,20 @@
             this.tabPage_Main.TabIndex = 0;
             this.tabPage_Main.Text = "Main";
             this.tabPage_Main.UseVisualStyleBackColor = true;
+            // 
+            // listBox_activeKLayouts
+            // 
+            this.listBox_activeKLayouts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.listBox_activeKLayouts.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.listBox_activeKLayouts.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.listBox_activeKLayouts.FormattingEnabled = true;
+            this.listBox_activeKLayouts.Location = new System.Drawing.Point(155, 200);
+            this.listBox_activeKLayouts.Name = "listBox_activeKLayouts";
+            this.listBox_activeKLayouts.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.listBox_activeKLayouts.Size = new System.Drawing.Size(106, 13);
+            this.listBox_activeKLayouts.TabIndex = 13;
+            this.listBox_activeKLayouts.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox_activeKLayouts_DrawItem);
+            this.listBox_activeKLayouts.DoubleClick += new System.EventHandler(this.listBox_activeKLayouts_DoubleClick);
             // 
             // label_threadStatus
             // 
@@ -195,30 +211,6 @@
             this.pictureBox_defaultLayout.TabStop = false;
             this.pictureBox_defaultLayout.Visible = false;
             // 
-            // statusStrip
-            // 
-            this.statusStrip.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.statusStrip.AutoSize = false;
-            this.statusStrip.Dock = System.Windows.Forms.DockStyle.None;
-            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel});
-            this.statusStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
-            this.statusStrip.Location = new System.Drawing.Point(0, 261);
-            this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(301, 22);
-            this.statusStrip.TabIndex = 12;
-            this.statusStrip.Text = "statusStrip";
-            // 
-            // toolStripStatusLabel
-            // 
-            this.toolStripStatusLabel.Name = "toolStripStatusLabel";
-            this.toolStripStatusLabel.Overflow = System.Windows.Forms.ToolStripItemOverflow.Always;
-            this.toolStripStatusLabel.Size = new System.Drawing.Size(60, 17);
-            this.toolStripStatusLabel.Text = "Welcome!";
-            this.toolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.toolStripStatusLabel.Click += new System.EventHandler(this.toolStripStatusLabel_Click);
-            // 
             // tabPage_Debug
             // 
             this.tabPage_Debug.Controls.Add(this.textBox_Debug);
@@ -242,6 +234,30 @@
             this.textBox_Debug.Size = new System.Drawing.Size(261, 214);
             this.textBox_Debug.TabIndex = 0;
             // 
+            // statusStrip
+            // 
+            this.statusStrip.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.statusStrip.AutoSize = false;
+            this.statusStrip.Dock = System.Windows.Forms.DockStyle.None;
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel});
+            this.statusStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
+            this.statusStrip.Location = new System.Drawing.Point(0, 261);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(301, 22);
+            this.statusStrip.TabIndex = 12;
+            this.statusStrip.Text = "statusStrip";
+            // 
+            // toolStripStatusLabel
+            // 
+            this.toolStripStatusLabel.Name = "toolStripStatusLabel";
+            this.toolStripStatusLabel.Overflow = System.Windows.Forms.ToolStripItemOverflow.Always;
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(60, 15);
+            this.toolStripStatusLabel.Text = "Welcome!";
+            this.toolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.toolStripStatusLabel.Click += new System.EventHandler(this.toolStripStatusLabel_Click);
+            // 
             // Form_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -257,10 +273,10 @@
             this.tabPage_Main.ResumeLayout(false);
             this.tabPage_Layouts.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_defaultLayout)).EndInit();
-            this.statusStrip.ResumeLayout(false);
-            this.statusStrip.PerformLayout();
             this.tabPage_Debug.ResumeLayout(false);
             this.tabPage_Debug.PerformLayout();
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -284,6 +300,7 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
         private System.Windows.Forms.TabPage tabPage_Debug;
         private System.Windows.Forms.TextBox textBox_Debug;
+        private System.Windows.Forms.ListBox listBox_activeKLayouts;
     }
 }
 

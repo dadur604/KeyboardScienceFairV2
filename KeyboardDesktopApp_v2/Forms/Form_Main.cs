@@ -31,7 +31,9 @@ namespace KeyboardDesktopApp_v2._0 {
             checkedListBoxContextMenu.Items.AddRange(new ToolStripItem[]{ editMenuItem, defaultMenuItem});
 
             _Form_CreateLayout = new Form_CreateLayout(this);
+            _Form_CreateLayout.FormClosed += new FormClosedEventHandler((s, e) => RefreshActiveLayoutsList());
         }
+
 
         private void EditClick(object sender, EventArgs e) {
             _Form_CreateLayout.Show(_selectedMenuItem);
@@ -60,12 +62,13 @@ namespace KeyboardDesktopApp_v2._0 {
 
         private void Form_Main_Load(object sender, EventArgs e) {
             button_refresh_Click(null, null);
+
             if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "Settings.xml")) {
                 var file = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + "Settings.xml");
                 var xlms = new XmlSerializer(typeof(ProgramState));
                 try {
                     Program.programState = (ProgramState)xlms.Deserialize(file);
-                } catch (Exception) {
+                } catch (Exception ex) {
                     Program.programState = new ProgramState();
                 } finally {
                     file.Close();
@@ -73,15 +76,42 @@ namespace KeyboardDesktopApp_v2._0 {
             } else {
                 Program.programState = new ProgramState();
             }
+
+            RefreshActiveLayoutsList();
+        }
+
+        internal void RefreshActiveLayoutsList() {
+            var activeKLayouts = new List<object>() { "Active Layouts:" };
+
+            activeKLayouts.AddRange(Program.programState.KLayouts);
+
+            listBox_activeKLayouts.Items.Clear();
+            listBox_activeKLayouts.Items.AddRange(activeKLayouts.ToArray());
+            listBox_activeKLayouts.Height = listBox_activeKLayouts.Items.Count * 17;
+            listBox_activeKLayouts.Location = new Point(listBox_activeKLayouts.Location.X, listBox_activeKLayouts.Parent.Height - listBox_activeKLayouts.Height);
+        }
+
+        private void listBox_activeKLayouts_DrawItem(object sender, DrawItemEventArgs e) {
+
+            if ((e.State & DrawItemState.Focus) > 0) {
+                Console.WriteLine();
+            }
+
+            string output = listBox_activeKLayouts.Items[e.Index].ToString();
+            float olength = e.Graphics.MeasureString(output, e.Font).Width;
+            float pos = listBox_activeKLayouts.Width - olength;
+            SolidBrush brush = new SolidBrush(e.ForeColor);
+            e.Graphics.FillRectangle(new SolidBrush(e.BackColor), new RectangleF(pos, e.Bounds.Top, olength, e.Bounds.Height));
+            e.Graphics.DrawString(output, e.Font, brush, pos, e.Bounds.Top);
         }
 
         private void Form_Main_FormClosing(object sender, FormClosingEventArgs e) {
+            Program.Stop();
+
             var xmls = new XmlSerializer(Program.programState.GetType());
             var file = File.Create(AppDomain.CurrentDomain.BaseDirectory + "Settings.xml");
             xmls.Serialize(file, Program.programState);
             file.Close();
-
-            Application.Exit();
         }
 
         private void button_createLayout_Click(object sender, EventArgs e) {
@@ -191,11 +221,17 @@ namespace KeyboardDesktopApp_v2._0 {
         }
 
         private void button_start_Click(object sender, EventArgs e) {
-            Program.Start();
+            if (button_start.Text == "Start") {
+                Program.Start();
+                button_start.Text = "Stop";
+            } else if (button_start.Text == "Stop") {
+                Program.Stop();
+                button_start.Text = "Start";
+            }
         }
 
-        public void UpdateThreadStatus(bool isOpen) {
-            if (isOpen) {
+        public void UpdateThreadStatus() {
+            if (Program.running) {
                 label_threadStatus.Invoke(new MethodInvoker(() => {
                     label_threadStatus.Text = "Satus : Running!";
                     label_threadStatus.ForeColor = Color.DarkGreen;
@@ -225,6 +261,15 @@ namespace KeyboardDesktopApp_v2._0 {
 
         private void toolStripStatusLabel_Click(object sender, EventArgs e) {
             tabControl_Main.Invoke(new MethodInvoker(() => tabControl_Main.SelectedTab = tabPage_Debug));
+        }
+
+        private void listBox_activeKLayouts_DoubleClick(object sender, EventArgs e) {
+            var klayout = listBox_activeKLayouts.SelectedItem as KLayout;
+            if (klayout == null) {
+                return;
+            }
+
+            _Form_CreateLayout.Show(klayout);
         }
     }
 }

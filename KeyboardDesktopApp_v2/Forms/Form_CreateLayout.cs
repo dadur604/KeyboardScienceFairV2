@@ -91,10 +91,9 @@ namespace KeyboardDesktopApp_v2._0 {
             } else {
                 return;
             }
-            ////Directory.CreateDirectory(file);
-            //File.WriteAllLines(file, klayoutfile);
 
             BinarySerializer.WriteToBinaryFile<KLayout>(file, klayout);
+            Close();
         }
 
         private void button_addImage_Click(object sender, EventArgs e) {
