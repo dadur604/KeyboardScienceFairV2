@@ -16,6 +16,8 @@ namespace KeyboardDesktopApp_v2._0 {
     public partial class Form_Main : Form {
 
         Form_CreateLayout _Form_CreateLayout;
+        Form_Help _Form_Help;
+        Form_Settings _Form_Settings;
         ContextMenuStrip checkedListBoxContextMenu;
         KLayout _selectedMenuItem;
         KLayout defaultLayout;
@@ -32,6 +34,9 @@ namespace KeyboardDesktopApp_v2._0 {
 
             _Form_CreateLayout = new Form_CreateLayout(this);
             _Form_CreateLayout.FormClosed += new FormClosedEventHandler((s, e) => RefreshActiveLayoutsList());
+
+            _Form_Help = new Form_Help();
+            _Form_Settings = new Form_Settings();
         }
 
 
@@ -107,6 +112,7 @@ namespace KeyboardDesktopApp_v2._0 {
 
         private void Form_Main_FormClosing(object sender, FormClosingEventArgs e) {
             Program.Stop();
+            Program.EndThreads();
 
             var xmls = new XmlSerializer(Program.programState.GetType());
             var file = File.Create(AppDomain.CurrentDomain.BaseDirectory + "Settings.xml");
@@ -249,11 +255,14 @@ namespace KeyboardDesktopApp_v2._0 {
 
         }
 
-        public void DebugHandle(string text, bool error = false) {
+        public void DebugHandle(string text, bool error = false, bool showBottom = false) {
             textBox_Debug.Invoke(new MethodInvoker(() => textBox_Debug.AppendText(text + "\n")));
             if (error) {
                 Program.errorState = true;
                 Program.errorMsg = text;
+            }
+
+            if (error || showBottom) {
                 statusStrip.Invoke(new MethodInvoker(() => toolStripStatusLabel.Text = text));
             }
         }
@@ -270,6 +279,18 @@ namespace KeyboardDesktopApp_v2._0 {
             }
 
             _Form_CreateLayout.Show(klayout);
+        }
+
+        private void helpToolStripMenuItem_Click(object sender, EventArgs e) {
+            _Form_Help.ShowDialog();
+        }
+
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e) {
+            _Form_Settings.ShowDialog();
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e) {
+            Application.Exit();
         }
     }
 }

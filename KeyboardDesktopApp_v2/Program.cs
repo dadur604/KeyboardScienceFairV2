@@ -52,6 +52,8 @@ namespace KeyboardDesktopApp_v2._0 {
         public static string errorMsg { get; set; } = null;
         public static ManualResetEvent _suspendEvent = new ManualResetEvent(true);
 
+        //public static IntPtr layoutpp = GetKeyboardLayout(0);
+
         public static int layout = (int)GetKeyboardLayout(0);
 
         public static bool running {
@@ -127,20 +129,29 @@ namespace KeyboardDesktopApp_v2._0 {
                         progressListener.Message(e.Data);
                     } catch (Exception er) {
                         _Form_Main.DebugHandle(er.Message, true);
+                        return;
                     }
 
                 }));
+            if (errorState) {
+                return;
+            }
             await uploader.UploadHexAsync((string)(imageAB_H + "\\output.ino.hex"), ser, new System.Diagnostics.DataReceivedEventHandler(
                 (s, e) => {
                     try {
                         progressListener.Message(e.Data);
                     } catch (Exception er) {
                         _Form_Main.DebugHandle((string)er.Message, true);
+                        return;
                     }
                     
                 }));
+            if (errorState) {
+                return;
+            }
 
-            // TODO: Success uploaded
+            _Form_Main.DebugHandle("Success Uploading!", showBottom: true);
+            errorState = false;
             programState.KLayouts = layouts.ToList();
         }
 
@@ -315,6 +326,11 @@ namespace KeyboardDesktopApp_v2._0 {
             }
 
             _Form_Main.UpdateThreadStatus();
+        }
+
+        internal static void EndThreads() {
+            threadRecieve.Abort();
+            threadSend.Abort();
         }
 
     }

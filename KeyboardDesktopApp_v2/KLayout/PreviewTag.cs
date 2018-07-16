@@ -21,18 +21,18 @@ namespace KeyboardDesktopApp_v2._0 {
         public byte[] imageByte {
             get { // serialize
                 if (image == null) return null;
-                using (MemoryStream ms = new MemoryStream()) {
+                MemoryStream ms = new MemoryStream();
                     image.Save(ms, ImageFormat.Bmp);
                     return ms.ToArray();
-                }
+                
             }
             set { // deserialize
                 if (value == null) {
                     image = null;
                 } else {
-                    using (MemoryStream ms = new MemoryStream(value)) {
+                    MemoryStream ms = new MemoryStream(value);
                         image = new Bitmap(ms);
-                    }
+                    
                 }
             }
         }
