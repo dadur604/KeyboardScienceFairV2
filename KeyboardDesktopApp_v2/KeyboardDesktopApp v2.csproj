@@ -137,7 +137,6 @@
     <Compile Include="Display Tools\ProgressListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Display Tools\Resolution.cs" />
-    <Compile Include="SerializableDictionary.cs" />
     <EmbeddedResource Include="Forms\Form_CreateLayout.resx">
       <DependentUpon>Form_CreateLayout.cs</DependentUpon>
     </EmbeddedResource>

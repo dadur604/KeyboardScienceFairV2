@@ -5,11 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace KeyboardDesktopApp_v2._0 {
+
+    [Serializable]
     public class ProgramState {
 
         public List<KLayout> KLayouts { get; set; }
 
-        public SerializableDictionary<decimal, int> idDictionary { get; set; }
+        public Dictionary<decimal, int> idDictionary { get; set; }
 
         public int defaultIndex { get; set; }
 
@@ -22,7 +24,7 @@ namespace KeyboardDesktopApp_v2._0 {
             CompileObjectsPath = @"C:\Program Files (x86)\Arduino\";
 
             KLayouts = new List<KLayout>();
-            idDictionary = new SerializableDictionary<decimal, int>();
+            idDictionary = new Dictionary<decimal, int>();
         }
 
     }

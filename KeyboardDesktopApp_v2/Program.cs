@@ -297,7 +297,6 @@ namespace KeyboardDesktopApp_v2._0 {
                 }
 
                 _suspendEvent.Set();
-                _Form_Main.UpdateThreadStatus();
                 //_Form1.buttonStart_Update();
             } catch(Exception e) {
                 _Form_Main.DebugHandle(e.Message, true);
@@ -317,7 +316,6 @@ namespace KeyboardDesktopApp_v2._0 {
                 _Form_Main.DebugHandle(e.Message, true);
             }
 
-            _Form_Main.UpdateThreadStatus();
         }
 
         public static void CloseSerial() {

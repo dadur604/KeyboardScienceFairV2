@@ -19,10 +19,10 @@ namespace KeyboardDesktopApp_v2._0.DisplayTools {
        /// <param name="KLayouts"></param>
        /// <returns>[0] = List<String> representing arduino code
        /// [1] = int representing number of layouts</returns>
-        public Tuple<List<string>, SerializableDictionary<decimal, int>> MakeArduinoCodeFromCDisplay(List<KLayout> KLayouts) {
+        public Tuple<List<string>, Dictionary<decimal, int>> MakeArduinoCodeFromCDisplay(List<KLayout> KLayouts) {
 
             List<string> cdisplay = new List<string>();
-            SerializableDictionary<decimal, int> idDictionary = new SerializableDictionary<decimal, int>();
+            Dictionary<decimal, int> idDictionary = new Dictionary<decimal, int>();
 
             for (int i = 0; i < KLayouts.Count; i++) {
                 KLayouts[i].cDisplay.Insert(0, $"if (current == '{i}'){{");
@@ -33,7 +33,7 @@ namespace KeyboardDesktopApp_v2._0.DisplayTools {
 
 
 
-            return new Tuple<List<string>, SerializableDictionary<decimal, int>>(MakeArduinoCodeFromCDisplay(cdisplay), idDictionary);
+            return new Tuple<List<string>, Dictionary<decimal, int>>(MakeArduinoCodeFromCDisplay(cdisplay), idDictionary);
         }
 
         /// <summary>
