@@ -2,7 +2,7 @@
   
 ## Directories & Files:  
 **KeyboardScienceFair_V2\ :** C# Desktop Application for creating layouts, uploading to keyboard, and controlling layout changes  
-**PCB\ :** Various PCB files for keyboard hardware, incluting built-in custom arduino using ATMega chip.  
+**PCB\ :** Various PCB files for keyboard hardware, including built-in custom arduino using ATMega chip.  
   --> KeyboardFullBoard.pdf : Full Schematic for hardware  
   --> PCB Gerber Files (zip) : gerber files for manufacturing pcb's (ex: jlcpcb.com)  
 
